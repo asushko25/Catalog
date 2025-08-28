@@ -1,0 +1,99 @@
+@import "../variables.scss";
+
+.pp-wrap {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 20px 22px;
+
+  background: $panel;
+  color: $text;
+  border: 1px solid $border;
+  border-radius: 16px;
+  box-shadow: $shadow;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.pp-title {
+  margin: 0 0 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.pp-sub {
+  margin: 0 0 16px;
+  color: $muted;
+  font-size: 14px;
+}
+
+.pp-value {
+  margin: 8px 0 18px;
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: .5px;
+  background: linear-gradient(
+    180deg,
+    $primary,
+    color-mix(in oklab, $primary 60%, #7dd3fc 40%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 8px 30px color-mix(in oklab, $primary 25%, transparent);
+}
+
+.pp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pp-badge {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, $primary 14%, transparent);
+  color: color-mix(in oklab, $primary 85%, $text);
+  border: 1px solid color-mix(in oklab, $primary 45%, transparent);
+}
+
+.pp-link {
+  margin-left: auto;
+  text-decoration: none;
+  font-weight: 700;
+  color: $primary;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, $primary 50%, transparent);
+  transition: box-shadow .15s ease, transform .06s ease;
+
+  &:hover  { box-shadow: 0 0 0 6px rgba(31,111,235,.18); }
+  &:active { transform: translateY(1px); }
+}
+
+.pp-error {
+  margin: 6px 0 0;
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.pp-wrap.pp-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, $panel 40%, transparent);
+  border-radius: inherit;
+  backdrop-filter: blur(2px);
+}
+.pp-wrap.pp-loading .pp-spinner {
+  position: absolute; inset: 0; margin: auto;
+}
+.pp-spinner {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 3px solid $primary; border-top-color: transparent;
+  animation: pp-rot .7s linear infinite;
+}
+@keyframes pp-rot { to { transform: rotate(360deg); } }

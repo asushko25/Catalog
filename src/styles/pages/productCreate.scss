@@ -1,0 +1,81 @@
+@import "../variables.scss";
+
+form {
+  max-width: 480px;
+  margin: 28px auto 0;
+  padding: 18px;
+  display: grid;
+  gap: $gap-md;
+
+  background: $panel;
+  color: $text;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  position: relative;
+}
+
+form > h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+form > input {
+  padding: 11px 12px;
+  border: 1px solid color-mix(in oklab, $muted 22%, transparent);
+  border-radius: 10px;
+  background: inherit;
+  color: inherit;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+
+  &::placeholder { color: $muted; }
+  &:focus {
+    border-color: $primary;
+    box-shadow: $ring;
+  }
+}
+
+form > button[type="submit"] {
+  justify-self: start;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, $primary, $primary-600);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+
+  &:hover   { filter: brightness(1.03); }
+  &:active  { transform: translateY(1px); }
+  &:disabled{ opacity: .65; cursor: default; }
+}
+
+.err {
+  color: #b00020;
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+@supports selector(:has(*)) {
+  form:has(> button[disabled])::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: color-mix(in oklab, $panel 35%, transparent);
+    border-radius: inherit;
+  }
+  form:has(> button[disabled])::before {
+    content: "";
+    position: absolute; inset: 0; margin: auto;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 3px solid $primary; border-top-color: transparent;
+    animation: pc-spin .7s linear infinite;
+  }
+}
+
+@keyframes pc-spin { to { transform: rotate(360deg); } }
