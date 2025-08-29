@@ -1,18 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { listProducts } from "../api/products";
-import type { Product } from "../types/product";
-import "../styles/pages/productsList.scss";
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { listProducts } from '../api/products';
+import type { Product } from '../types/product';
+import '../styles/pages/productsList.scss';
 
 export default function ProductsList() {
-  const [category, setCategory] = useState("");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [category, setCategory] = useState('');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["products"],
+    queryKey: ['products'],
     queryFn: listProducts,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 
   const view = useMemo(() => {
@@ -24,9 +27,7 @@ export default function ProductsList() {
       : list;
 
     return filtered.sort((a, b) =>
-      sortDir === "asc"
-        ? a.priceGross - b.priceGross
-        : b.priceGross - a.priceGross
+      sortDir === 'asc' ? a.priceGross - b.priceGross : b.priceGross - a.priceGross
     );
   }, [data, category, sortDir]);
 
@@ -47,7 +48,7 @@ export default function ProductsList() {
         <select
           className="pl-select"
           value={sortDir}
-          onChange={(e) => setSortDir(e.target.value as "asc" | "desc")}
+          onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
         >
           <option value="asc">Price ↑</option>
           <option value="desc">Price ↓</option>

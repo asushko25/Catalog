@@ -1,9 +1,12 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Domain;
 
 use App\Entity\Product;
 use App\Repository\DiscountRuleRepository;
 use App\Domain\Discount\DiscountStrategyInterface;
+use Traversable;
 
 final class FinalPriceCalculator
 {
@@ -12,9 +15,12 @@ final class FinalPriceCalculator
 
     public function __construct(
         private readonly DiscountRuleRepository $rules,
-        iterable $strategies
+        iterable $strategies,
+        private readonly float $fallbackDiscount = 0.0 
     ) {
-        $this->strategies = is_array($strategies) ? $strategies : iterator_to_array($strategies);
+        $this->strategies = $strategies instanceof Traversable
+            ? iterator_to_array($strategies)
+            : (array) $strategies;
     }
 
     public function calculate(Product $product): float
@@ -22,16 +28,23 @@ final class FinalPriceCalculator
         $price = (float) $product->getPriceGross();
 
         $rule = $this->rules->findOneBy([], ['id' => 'DESC']);
-        if (!$rule) {
-            return (float) number_format($price, 2, '.', '');
-        }
-
-        foreach ($this->strategies as $s) {
-            if ($s->supports($rule)) {
-                return $s->apply($product, $rule);
+        if ($rule) {
+            foreach ($this->strategies as $s) {
+                if ($s instanceof DiscountStrategyInterface && $s->supports($rule)) {
+                    return $this->round2($s->apply($product, $rule));
+                }
             }
         }
 
-        return (float) number_format($price, 2, '.', '');
+        if ($this->fallbackDiscount > 0.0) {
+            $price = $price * (1 - $this->fallbackDiscount);
+        }
+
+        return $this->round2($price);
+    }
+
+    private function round2(float $v): float
+    {
+        return round($v, 2);
     }
 }

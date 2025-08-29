@@ -14,7 +14,7 @@ final class PercentDiscount implements DiscountStrategyInterface
     public function apply(Product $product, DiscountRule $rule): float
     {
         $price = (float) $product->getPriceGross();
-        $percent = (float) $rule->getValue(); // 10 => -10%
+        $percent = (float) $rule->getValue();
         $discount = $price * ($percent / 100);
         $final = max($price - $discount, 0);
         return (float) number_format($final, 2, '.', '');

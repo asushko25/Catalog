@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createProduct } from '../api/products';
+import type { Product } from '../types/product';
 import '../styles/pages/productCreate.scss';
 
 type FormErrors = Record<string, string[]>;
@@ -12,35 +14,41 @@ export default function ProductCreate() {
   const [priceGross, setPriceGross] = useState('');
   const [currency, setCurrency] = useState('PLN');
   const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-    setLoading(true);
-    try {
-      await createProduct({
-        externalId: externalId || null,
-        name,
-        category,
-        priceGross,
-        currency,
-      });
+  const createMut = useMutation({
+    mutationFn: createProduct,
+    onSuccess: (newProduct) => {
+      qc.setQueryData<Product[]>(['products'], (old) =>
+        old ? [...old, newProduct] : [newProduct]
+      );
+      qc.invalidateQueries({ queryKey: ['products'] });
+
       navigate('/');
-    } catch (e: any) {
+    },
+    onError: (e: any) => {
       const map: FormErrors = {};
       (e?.apiErrors ?? [{ field: '_', message: 'Unknown error' }]).forEach(
         (er: { field?: string | null; message: string }) => {
           const key = er.field || '_';
-          map[key] = map[key] || [];
-          map[key].push(er.message);
+          (map[key] ||= []).push(er.message);
         }
       );
       setErrors(map);
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    createMut.mutate({
+      externalId: externalId || null,
+      name,
+      category,
+      priceGross,
+      currency,
+    });
   };
 
   return (
@@ -96,8 +104,8 @@ export default function ProductCreate() {
         <div key={i} className="err">{m}</div>
       ))}
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Creating…' : 'Create'}
+      <button type="submit" disabled={createMut.isPending}>
+        {createMut.isPending ? 'Creating…' : 'Create'}
       </button>
     </form>
   );
